@@ -1,6 +1,16 @@
 // /monitoring/node-backend/app.js
 const express = require("express");
 const client = require("prom-client");
+const { createLogger, transports } = require("winston");
+const LokiTransport = require("winston-loki");
+const options = {
+  transports: [
+    new LokiTransport({
+      host: "http://127.0.0.1:3100"
+    })
+  ]
+};
+const logger = createLogger(options);
 
 const app = express();
 const PORT = 4000;
@@ -41,6 +51,11 @@ app.use((req, res, next) => {
       },
       seconds
     );
+    if (res.statusCode >= 200 && res.statusCode < 400) {
+      logger.info(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} - ${seconds}s`);
+    } else {
+      logger.error(`[${new Date().toISOString()}] ${ req.method} ${req.url} ${res.statusCode} - ${seconds}s`);
+    }
   });
   next();
 });
