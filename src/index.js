@@ -6,7 +6,10 @@ const LokiTransport = require("winston-loki");
 const options = {
   transports: [
     new LokiTransport({
-      host: "http://127.0.0.1:3100"
+      labels: {
+        "appname": "Demo"
+      },
+      host: "http://localhost:3100"
     })
   ]
 };
@@ -53,8 +56,10 @@ app.use((req, res, next) => {
     );
     if (res.statusCode >= 200 && res.statusCode < 400) {
       logger.info(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} - ${seconds}s`);
+      console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} - ${seconds}s`)
     } else {
       logger.error(`[${new Date().toISOString()}] ${ req.method} ${req.url} ${res.statusCode} - ${seconds}s`);
+      console.error(`[${new Date().toISOString()}] ${req.method} ${req.url} ${res.statusCode} - ${seconds}s`)
     }
   });
   next();
